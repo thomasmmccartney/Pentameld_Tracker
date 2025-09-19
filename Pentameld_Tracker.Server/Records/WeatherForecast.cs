@@ -1,4 +1,4 @@
-namespace Pentameld_Tracker.Server
+namespace Pentameld_Tracker.Server.Records
 {
     public class WeatherForecast
     {

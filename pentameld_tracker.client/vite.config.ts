@@ -47,7 +47,11 @@ export default defineConfig({
     },
     server: {
         proxy: {
-            '^/weatherforecast': {
+            '^/pentameldgearprobability': {
+                target,
+                secure: false
+            },
+            '^/pentameldmateriaprobability': {
                 target,
                 secure: false
             }
