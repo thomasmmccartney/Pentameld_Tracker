@@ -41,62 +41,73 @@ function App() {
 
     const gearContents = gear === undefined || materia === undefined
         ? <p><em>Loading... Please refresh once the ASP.NET backend has started. See <a href="https://aka.ms/jspsintegrationreact">https://aka.ms/jspsintegrationreact</a> for more details.</em></p>
-        : <div>{gear.map(gearPiece => {
-            return (
-                <div key={gearPiece.id}>
-                <h1>{gearPiece.slotString}</h1>
+        : <div>
+                <h1>Gear</h1>
+                    <div style={{ display: 'flex', justifyContent: 'center' }}>
                 <table className="table table-striped" aria-labelledby="tableLabel">
                 <thead>
                     <tr>
-                        <th>Meld Slot</th>
-                        <th>Materia Type</th>
-                        <th>Average Melds</th>
+                        <th>Gear Piece</th>
+                        <th>Meld 1</th>
+                         <th>Meld 2</th>
+                         <th>Meld 3</th>
+                         <th>Meld 4</th>
+                         <th>Meld 5</th>
                     </tr>
                 </thead>
-                <tbody>
-                  {materia
-                      .filter(materiaToMeld => materiaToMeld.gearId == gearPiece.id)
-                       .map(materiaToMeld => {
-                        return (
-                            <tr key={materiaToMeld.id}>
-                                <td>{materiaToMeld.meldSlot}</td>
-                                <td>{materiaToMeld.materiaTypeString}</td>
-                                <td>{materiaToMeld.averageNumberOfMelds}</td>
-                            </tr>
-                        );
-                    })}
+                        <tbody>{gear.map(gearPiece => {
+                            return (
+                                <tr>
+                                    <td>{gearPiece.slotString}</td>
+                                    {materia
+                                    .filter(materiaToMeld => materiaToMeld.gearId == gearPiece.id)
+                                    .map(materiaToMeld => {
+                                        return (<td>{materiaToMeld.materiaTypeString}</td>);
+                                    })}</tr>
+                            )
+                        })}
+                
                 </tbody>
-                </table>
-            </div>
-        )})}
-        </div>;
+                        </table>
+                </div>
+            </div>;
 
     const materiaContents = gear === undefined || materia === undefined
         ? <p><em>Loading... Please refresh once the ASP.NET backend has started. See <a href="https://aka.ms/jspsintegrationreact">https://aka.ms/jspsintegrationreact</a> for more details.</em></p>
         : <div>
             <h1>Total Melds</h1>
+            <div style={{ display: 'flex', justifyContent: 'center' }}>
             <table className="table table-striped" aria-labelledby="tableLabel">
             <thead>
-                    <tr>
+                        <tr>
+                            <th>Type</th>
                         <th>Control</th>
                         <th>Craftsmanship</th>
                         <th>CP</th>
                 </tr>
             </thead>
             <tbody>
-             <tr>
-                        <td>{materia.filter(item => item.materiaType == 0).reduce((sum, item) => sum + item.averageNumberOfMelds, 0)}</td>
-              <td>{materia.filter(item => item.materiaType == 1).reduce((sum, item) => sum + item.averageNumberOfMelds, 0)}</td>
-                        <td>{materia.filter(item => item.materiaType == 2).reduce((sum, item) => sum + item.averageNumberOfMelds, 0)}</td>
-             </tr>
+                        <tr>
+                        <td>XII</td>
+                            <td>{materia.filter(item => item.materiaType == 0 && (item.averageNumberOfMelds == 1 || item.averageNumberOfMelds == 6)).reduce((sum, item) => sum + item.averageNumberOfMelds, 0)}</td>
+                            <td>{materia.filter(item => item.materiaType == 1 && (item.averageNumberOfMelds == 1 || item.averageNumberOfMelds == 6)).reduce((sum, item) => sum + item.averageNumberOfMelds, 0)}</td>
+                            <td>{materia.filter(item => item.materiaType == 2 && (item.averageNumberOfMelds == 1 || item.averageNumberOfMelds == 6)) .reduce((sum, item) => sum + item.averageNumberOfMelds, 0)}</td>
+                        </tr>
+                        <tr>
+                            <td>XI</td>
+                            <td>{materia.filter(item => item.materiaType == 0 && item.averageNumberOfMelds != 1 && item.averageNumberOfMelds != 6).reduce((sum, item) => sum + item.averageNumberOfMelds, 0)}</td>
+                            <td>{materia.filter(item => item.materiaType == 1 && item.averageNumberOfMelds != 1 && item.averageNumberOfMelds != 6).reduce((sum, item) => sum + item.averageNumberOfMelds, 0)}</td>
+                            <td>{materia.filter(item => item.materiaType == 2 && item.averageNumberOfMelds != 1 && item.averageNumberOfMelds != 6).reduce((sum, item) => sum + item.averageNumberOfMelds, 0)}</td>
+                        </tr>
             </tbody>
-            </table>
+                </table>
+            </div>
         </div>;
 
     return (
         <div>
-            <h1 id="tableLabel">Gear</h1>
-            <p>This component demonstrates fetching data from the server.</p>
+            <h1 id="tableLabel">Pentamelding Tracker</h1>
+            <p>Shows the required Melds for gear.</p>
             {gearContents}
             {materiaContents}
         </div>
