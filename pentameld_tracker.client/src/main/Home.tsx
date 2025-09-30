@@ -9,6 +9,9 @@ function HomePage() {
             <button onClick={() => navigate('/pentameldCalculator')}>
                 Go to Calculator Page
             </button>
+            <button onClick={() => navigate('/pentameldExporter')}>
+                Go to Setup Melds Page
+            </button>
         </div>
     );
 }

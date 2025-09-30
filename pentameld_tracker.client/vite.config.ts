@@ -56,7 +56,16 @@ export default defineConfig({
             '^/pentameldmateriaprobability': {
                 target,
                 secure: false
-            }
+            },
+            '^/pentameldgearexporter': {
+                target,
+                secure: false
+            },
+            '^/records': {
+                target,
+                secure: false
+            },
+
         },
         port: 61360,
         https: {
