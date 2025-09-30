@@ -21,6 +21,7 @@ namespace Pentameld_Tracker.Server.Extensions
             };
         }
 
+
         public enum GearSlot
     {
         MainHand,

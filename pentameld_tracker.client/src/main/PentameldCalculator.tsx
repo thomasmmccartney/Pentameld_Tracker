@@ -1,164 +1,143 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type SetStateAction } from 'react';
 import './App.css';
 import { useNavigate } from 'react-router-dom';
 
 interface Gear {
-    id: string;
-    slotString: string;
-    meldTypeString: string;
-    slot: number;
-    meldType: number;
+    Id: string;
+    SlotString: string;
+    MeldTypeString: string;
+    Slot: number;
+    MeldType: number;
 }
 interface Materia {
-    id: string;
-    gearId: string;
-    meldSlot: string;
-    materiaTypeString: string;
-    materiaType: number;
-    averageNumberOfMelds: number;
+    Id: string;
+    GearId: string;
+    MeldSlot: string;
+    MateriaTypeString: string;
+    MateriaType: number;
+    AverageNumberOfMelds: number;
 }
 
 function PentameldCalculator() {
-    const [gear, setGear] = useState<Gear[]>();
-    const [materia, setMateria] = useState<Materia[]>();
-    const [gearLoaded, setGearLoaded] = useState(false);
+    const [gear, setGear] = useState<Gear[]>([]);
+    const [materia, setMateria] = useState<Materia[]>([]);
+    const [fileError, setFileError] = useState<string | null>(null);
+    const [dataLoaded, setDataLoaded] = useState(false);
 
     const navigate = useNavigate();
 
-    useEffect(() => {
-        const fetchGear = async () => {
-            console.log("StartedGear")
-            await populateGear(); // assume this returns gear data
-            console.log("FinishedGear")
-        };
-        fetchGear();
-    }, []);
+    const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
 
-    useEffect(() => {
-        if (gearLoaded && gear != null && gear.length > 0) {
-            console.log("StartedMateria")
-            populateMateria(gear);
-            console.log("FinishedMateria")
+        if (file.type !== 'application/json') {
+            setFileError('Please select a valid JSON file.');
+            return;
         }
-    }, [gearLoaded, gear]);
 
-    const gearContents = gear === undefined || materia === undefined
-        ? <p></p>
-        : <div>
-                <h1>Gear</h1>
-                    <div style={{ display: 'flex', justifyContent: 'center' }}>
-                <table className="table table-striped" aria-labelledby="tableLabel">
-                <thead>
-                    <tr>
-                        <th>Gear Piece</th>
-                        <th>Meld 1</th>
-                         <th>Meld 2</th>
-                         <th>Meld 3</th>
-                         <th>Meld 4</th>
-                         <th>Meld 5</th>
-                    </tr>
-                </thead>
-                        <tbody>{gear.map(gearPiece => {
-                            return (
-                                <tr>
-                                    <td>{gearPiece.slotString}</td>
-                                    {materia
-                                    .filter(materiaToMeld => materiaToMeld.gearId == gearPiece.id)
-                                    .map(materiaToMeld => {
-                                        return (<td>{materiaToMeld.materiaTypeString}</td>);
-                                    })}</tr>
-                            )
-                        })}
-                
-                </tbody>
-                        </table>
-                </div>
-            </div>;
+        try {
+            const text = await file.text();
+            const json = JSON.parse(text);
 
-    const materiaContents = gear === undefined || materia === undefined
-        ? <p></p>
-        : <div>
-            <h1>Total Melds</h1>
-            <div style={{ display: 'flex', justifyContent: 'center' }}>
-            <table className="table table-striped" aria-labelledby="tableLabel">
-            <thead>
-                        <tr>
-                            <th>Type</th>
-                        <th>Control</th>
-                        <th>Craftsmanship</th>
-                        <th>CP</th>
-                </tr>
-            </thead>
-            <tbody>
-                        <tr>
-                        <td>XII</td>
-                            <td>{materia.filter(item => item.materiaType == 0 && (item.averageNumberOfMelds == 1 || item.averageNumberOfMelds == 6)).reduce((sum, item) => sum + item.averageNumberOfMelds, 0)}</td>
-                            <td>{materia.filter(item => item.materiaType == 1 && (item.averageNumberOfMelds == 1 || item.averageNumberOfMelds == 6)).reduce((sum, item) => sum + item.averageNumberOfMelds, 0)}</td>
-                            <td>{materia.filter(item => item.materiaType == 2 && (item.averageNumberOfMelds == 1 || item.averageNumberOfMelds == 6)) .reduce((sum, item) => sum + item.averageNumberOfMelds, 0)}</td>
-                        </tr>
-                        <tr>
-                            <td>XI</td>
-                            <td>{materia.filter(item => item.materiaType == 0 && item.averageNumberOfMelds != 1 && item.averageNumberOfMelds != 6).reduce((sum, item) => sum + item.averageNumberOfMelds, 0)}</td>
-                            <td>{materia.filter(item => item.materiaType == 1 && item.averageNumberOfMelds != 1 && item.averageNumberOfMelds != 6).reduce((sum, item) => sum + item.averageNumberOfMelds, 0)}</td>
-                            <td>{materia.filter(item => item.materiaType == 2 && item.averageNumberOfMelds != 1 && item.averageNumberOfMelds != 6).reduce((sum, item) => sum + item.averageNumberOfMelds, 0)}</td>
-                        </tr>
-            </tbody>
-                </table>
-            </div>
-        </div>;
+            const gearList = json.map(item => item.Gear);
+            const materiaList = json.flatMap(item => item.Melds);
+
+            setGear(gearList);
+            setMateria(materiaList);
+            setFileError(null);
+            setDataLoaded(true);
+
+        } catch (error) {
+            console.error('Error importing JSON:', error);
+            setFileError('Failed to read or send JSON file.');
+        }
+    };
 
     return (
         <div>
             <div style={{
-                textAlign: 'center', marginTop: '10px'}}>
-            <button onClick={() => navigate('/')}>
-                Go to Home Page
-            </button>
+                textAlign: 'center', marginTop: '10px'
+            }}>
+                <button onClick={() => navigate('/')}>
+                    Go to Home Page
+                </button>
             </div>
-            {gear === undefined || materia === undefined
+            {!dataLoaded
                 ?
-                <div className="spinner-container">
-                    <div className="spinner"></div>
+                <div>
+                    <input type="file" accept=".json" onChange={handleFileChange} />
+                    {fileError && <p style={{ color: 'red' }}>{fileError}</p>}
                 </div>
-                :    
+                :
                 <div>
                     <h1 id="tableLabel">Pentamelding Tracker</h1>
                     <p>Shows the required Melds for gear.</p>
-                    {gearContents}
-                    {materiaContents}     
+                    <div>
+                            <h1>Gear</h1>
+                            <div style={{ display: 'flex', justifyContent: 'center' }}>
+                                <table className="table table-striped" aria-labelledby="tableLabel">
+                                    <thead>
+                                        <tr>
+                                            <th>Gear Piece</th>
+                                            <th>Meld 1</th>
+                                            <th>Meld 2</th>
+                                            <th>Meld 3</th>
+                                            <th>Meld 4</th>
+                                            <th>Meld 5</th>
+                                        </tr>
+                                    </thead>
+                                <tbody>{
+                                    gear.map(
+                                        gearPiece => {
+                                            return (
+                                                <tr key={gearPiece.Id}>
+                                                    <td>{gearPiece.SlotString}
+                                                    </td> {
+                                                        materia.filter(
+                                                            materiaToMeld =>
+                                                                materiaToMeld.GearId == gearPiece.Id)
+                                                            .map(materiaToMeld =>
+                                                            {
+                                                                return (<td key={materiaToMeld.Id}>{materiaToMeld.MateriaTypeString}</td>);
+                                                            })}</tr>)
+                                        })}
+                                </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div>
+                            <h1>Total Melds</h1>
+                            <div style={{ display: 'flex', justifyContent: 'center' }}>
+                                <table className="table table-striped" aria-labelledby="tableLabel">
+                                    <thead>
+                                        <tr>
+                                            <th>Type</th>
+                                            <th>Control</th>
+                                            <th>Craftsmanship</th>
+                                            <th>CP</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>XII</td>
+                                            <td>{materia.filter(item => item.MateriaType == 0 && (item.AverageNumberOfMelds == 1 || item.AverageNumberOfMelds == 6)).reduce((sum, item) => sum + item.AverageNumberOfMelds, 0)}</td>
+                                            <td>{materia.filter(item => item.MateriaType == 1 && (item.AverageNumberOfMelds == 1 || item.AverageNumberOfMelds == 6)).reduce((sum, item) => sum + item.AverageNumberOfMelds, 0)}</td>
+                                            <td>{materia.filter(item => item.MateriaType == 2 && (item.AverageNumberOfMelds == 1 || item.AverageNumberOfMelds == 6)).reduce((sum, item) => sum + item.AverageNumberOfMelds, 0)}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>XI</td>
+                                            <td>{materia.filter(item => item.MateriaType == 0 && item.AverageNumberOfMelds != 1 && item.AverageNumberOfMelds != 6).reduce((sum, item) => sum + item.AverageNumberOfMelds, 0)}</td>
+                                            <td>{materia.filter(item => item.MateriaType == 1 && item.AverageNumberOfMelds != 1 && item.AverageNumberOfMelds != 6).reduce((sum, item) => sum + item.AverageNumberOfMelds, 0)}</td>
+                                            <td>{materia.filter(item => item.MateriaType == 2 && item.AverageNumberOfMelds != 1 && item.AverageNumberOfMelds != 6).reduce((sum, item) => sum + item.AverageNumberOfMelds, 0)}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                 </div>
             }
         </div>
     );
-
-    async function populateGear() {
-        const response = await fetch('pentameldgearprobability');
-        if (response.ok) {
-            const data = await response.json();
-            setGear(data);
-            setGearLoaded(true);
-        }
-    }
-
-async function populateMateria(gear: Gear[]) {
-    const fetches = gear.map(async gearPiece => {
-        const response = await fetch(
-            `pentameldmateriaprobability?meldType=${gearPiece.meldType}&gearId=${gearPiece.id}`
-        );
-
-        if (response.ok) {
-            const data = await response.json();
-            return data as Materia[];
-        } else {
-            return [];
-        }
-    });
-
-    const results = await Promise.all(fetches);
-    const materiaToAdd = results.flat(); // flatten array of arrays
-    setMateria(materiaToAdd);
 }
-
-}
-
+   
 export default PentameldCalculator;

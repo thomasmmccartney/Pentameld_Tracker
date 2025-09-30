@@ -1,4 +1,4 @@
-import { useEffect, useState, type ChangeEvent } from 'react';
+﻿import { useEffect, useState } from 'react';
 import './App.css';
 import { useNavigate } from 'react-router-dom';
 import type { JSX } from 'react/jsx-dev-runtime';
@@ -28,7 +28,11 @@ function PentameldExporter() {
     const navigate = useNavigate();
 
     useEffect(() => {
-    }, []);
+        if (gear || melds) {
+            UpdateView()
+        }
+    }, [gear, melds]);
+
 
     return (
         <div>
@@ -51,13 +55,17 @@ function PentameldExporter() {
     );
 
     async function exportGear() {
-        const response = await fetch(`pentameldgearexporter/export?gear=${gear}&melds=${melds}`);
+        const response = await fetch(`pentameldgearexporter/export`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ gear, melds }),
+        });
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
 
         const a = document.createElement('a');
         a.href = url;
-        a.download = name;
+        a.download = `${name}.json`;
         document.body.appendChild(a);
         a.click();
         a.remove();
@@ -70,31 +78,10 @@ function PentameldExporter() {
             headers: { 'Content-Type': 'application/json' }
         })
         const gearPiece = await response.json();
-
-        const newGear =
-            <div>
-                <select
-                    id={gearPiece.id}
-                    value={gearPiece.slot}
-                    onChange={(e) => gearPiece.slot = parseInt(e.target.value)}>
-                    <option value="0" >MainHand</option>
-                    <option value="1" >OffHand</option>
-                    <option value="2" >Head</option>
-                    <option value="3" >Body</option>
-                    <option value="4" >Gloves</option>
-                    <option value="5" >Legs</option>
-                    <option value="6" >Feet</option>
-                    <option value="7" >Earring</option>
-                    <option value="8" >Necklace</option>
-                    <option value="9" >Bracelet</option>
-                    <option value="10" >Ring</option>
-                </select>
-            </div>;
-
-        console.log("newGear")
-        console.log(newGear)
-
-        setGearDisplay([...gearDisplay, newGear]);
+        console.log("gearPiece.id")
+        console.log(gearPiece.id)
+        console.log("response")
+        console.log(gearPiece)
         setGear([...gear, gearPiece]);
 
         const materiaToMeld = []
@@ -102,18 +89,19 @@ function PentameldExporter() {
 
         for (let i = 0; i < 5; i++)
         {
-            const response = await fetch(`records/createMateria?&gearId=${gearPiece.id}&meldSlot=${i}`, {
+            console.log("materia gearPiece.id")
+            console.log(gearPiece.id)
+            const response = await fetch(`records/createMateria?&gearId=${gearPiece.id}&meldSlot=${i}&gearMeldType=${gearPiece.meldType}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' }
             })
-            console.log(response)
             const materia = await response.json();
             const newMateria =
                 <div>
                     <select
                         id={materia.id}
                         value={materia.materiaType}
-                        onChange={(e) => {materia.materiaType = parseInt(e.target.value)}}>
+                        onChange={(e) => { materia.materiaType = parseInt(e.target.value) }}>
                         <option value="0" >Control</option>
                         <option value="1" >Craftsmanship</option>
                         <option value="2" >CP</option>
@@ -122,12 +110,58 @@ function PentameldExporter() {
 
             materiaElements.push(newMateria);
             materiaToMeld.push(materia as Materia)
-            console.log("newMateria")
-            console.log(newMateria)
         }
 
-        setGearDisplay([...gearDisplay, newGear, ...materiaElements]);
         setMelds([...melds, materiaToMeld]);
+
+    }
+
+    async function UpdateView()
+    {
+        const displayedGear = gear.map((gearPiece, index) => (
+            <div key={gearPiece.id}>
+                <select
+                    value={gearPiece.slot}
+                    onChange={(e) => {
+                        const updatedGear = { ...gearPiece, slot: parseInt(e.target.value) };
+                        const updatedList = [...gear];
+                        updatedList[index] = updatedGear;
+                        setGear(updatedList);
+                    }}>
+                    <option value="0">MainHand</option>
+                    <option value="1">OffHand</option>
+                    <option value="2">Head</option>
+                    <option value="3">Body</option>
+                    <option value="4">Gloves</option>
+                    <option value="5">Legs</option>
+                    <option value="6">Feet</option>
+                    <option value="7">Earring</option>
+                    <option value="8">Necklace</option>
+                    <option value="9">Bracelet</option>
+                    <option value="10">Ring</option>
+                </select>
+            </div>
+        ))
+
+        const displayedMateria = melds.flatMap((materia, index) => (
+            materia.map((innerMateria, materiaIndex) => (
+                <div key={innerMateria.id}>
+                    <select
+                        value={innerMateria.materiaType}
+                        onChange={(e) => {
+                            const updatedMat = { ...innerMateria, materiaType: parseInt(e.target.value) };
+                            const updatedList = [...melds];
+                            updatedList[index][materiaIndex] = updatedMat;
+                            setMelds(updatedList);
+                        }}>
+                        <option value="0">Control</option>
+                        <option value="1">Craftsmanship</option>
+                        <option value="2">CP</option>
+                    </select>
+                </div>
+            ))))
+
+        setGearDisplay([...displayedGear, ...displayedMateria]);
     }
 }
 

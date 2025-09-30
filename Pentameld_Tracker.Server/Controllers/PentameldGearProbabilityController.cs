@@ -14,8 +14,8 @@ namespace Pentameld_Tracker.Server.Controllers
             _logger = logger;
         }
 
-        [HttpGet(Name = "GetPentameldGearProbability")]
-        public IEnumerable<Gear> Get()
+        [HttpGet(Name = "import")]
+        public IEnumerable<Gear> ImportFile()
         {
             return Enumerable.Range(0, 11).Append(10).Select(index => new Gear
             {

@@ -22,27 +22,11 @@ namespace Pentameld_Tracker.Server.Controllers
             {
                 MateriaType = (MateriaType)Random.Shared.Next(3),
                 MeldSlot = index + 1,
-                AverageNumberOfMelds = GetAverageNumberOfMelds((GearMeldType)meldType, index),
                 GearId = Guid.Parse(gearId)
              
           
             }).ToArray();
         }
 
-        private int GetAverageNumberOfMelds(GearMeldType meldType, int index)
-        {
-            if (meldType == GearMeldType.SingleMeld)
-            {
-                index += 1;
-            }
-            return index switch
-            {
-                0 or 1 => 1,
-                2 => 6,
-                3 => 10,
-                4 => 15,
-                5 => 20,
-            };
-        }
     }
 }

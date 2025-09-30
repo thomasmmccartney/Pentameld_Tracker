@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Pentameld_Tracker.Server.Records;
 using System.Text;
 using System.Text.Json;
+using static Pentameld_Tracker.Server.Extensions.GearExtensions;
 
 namespace Pentameld_Tracker.Server.Controllers
 {
@@ -19,13 +20,14 @@ namespace Pentameld_Tracker.Server.Controllers
         [HttpPost("createGear")]
         public IActionResult CreateGear()
         {
-            return Ok(new Gear());
+            var gear = new Gear();
+            return Ok(gear);
         }
 
         [HttpPost("createMateria")]
-        public IActionResult CreateMateria([FromQuery] string gearId, [FromQuery] int meldSlot)
+        public IActionResult CreateMateria([FromQuery] string gearId, [FromQuery] int meldSlot, [FromQuery] int gearMeldType)
         {
-            return Ok(new Materia() {GearId = Guid.Parse(gearId), MeldSlot = meldSlot});
+            return Ok(new Materia() { GearId = Guid.Parse(gearId), MeldSlot = meldSlot });
         }
     }
 }

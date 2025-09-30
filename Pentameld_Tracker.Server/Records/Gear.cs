@@ -5,7 +5,8 @@ namespace Pentameld_Tracker.Server.Records
     public class Gear
     {
         public GearSlot Slot { get; set; }
-        public Guid Id => Guid.NewGuid();
+
+        public Guid Id { get; set; } = Guid.NewGuid();
         public GearMeldType MeldType => Slot.ToGearMeldType();
 
         public string SlotString => Slot.ToString();
