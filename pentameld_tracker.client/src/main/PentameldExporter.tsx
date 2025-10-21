@@ -118,8 +118,9 @@ function PentameldExporter() {
 
     async function UpdateView()
     {
-        const displayedGear = gear.map((gearPiece, index) => (
-            <div key={gearPiece.id}>
+        const displayedGearWithMateria = gear.map((gearPiece, index) => (
+            <div key={gearPiece.id} style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
+                {/* Gear Select */}
                 <select
                     value={gearPiece.slot}
                     onChange={(e) => {
@@ -127,7 +128,8 @@ function PentameldExporter() {
                         const updatedList = [...gear];
                         updatedList[index] = updatedGear;
                         setGear(updatedList);
-                    }}>
+                    }}
+                >
                     <option value="0">MainHand</option>
                     <option value="1">OffHand</option>
                     <option value="2">Head</option>
@@ -140,28 +142,29 @@ function PentameldExporter() {
                     <option value="9">Bracelet</option>
                     <option value="10">Ring</option>
                 </select>
-            </div>
-        ))
 
-        const displayedMateria = melds.flatMap((materia, index) => (
-            materia.map((innerMateria, materiaIndex) => (
-                <div key={innerMateria.id}>
+                {/* Materia Selects */}
+                {melds[index]?.map((innerMateria, materiaIndex) => (
                     <select
+                        key={innerMateria.id}
                         value={innerMateria.materiaType}
                         onChange={(e) => {
                             const updatedMat = { ...innerMateria, materiaType: parseInt(e.target.value) };
                             const updatedList = [...melds];
                             updatedList[index][materiaIndex] = updatedMat;
                             setMelds(updatedList);
-                        }}>
+                        }}
+                    >
                         <option value="0">Control</option>
                         <option value="1">Craftsmanship</option>
                         <option value="2">CP</option>
                     </select>
-                </div>
-            ))))
+                ))}
+            </div>
+        ));
 
-        setGearDisplay([...displayedGear, ...displayedMateria]);
+        setGearDisplay(displayedGearWithMateria);
+
     }
 }
 
