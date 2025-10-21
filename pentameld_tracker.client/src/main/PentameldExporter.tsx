@@ -120,7 +120,6 @@ function PentameldExporter() {
     {
         const displayedGearWithMateria = gear.map((gearPiece, index) => (
             <div key={gearPiece.id} style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
-                {/* Gear Select */}
                 <select
                     value={gearPiece.slot}
                     onChange={(e) => {
@@ -143,7 +142,7 @@ function PentameldExporter() {
                     <option value="10">Ring</option>
                 </select>
 
-                {/* Materia Selects */}
+
                 {melds[index]?.map((innerMateria, materiaIndex) => (
                     <select
                         key={innerMateria.id}
